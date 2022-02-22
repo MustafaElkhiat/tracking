@@ -7,12 +7,17 @@ import com.sesco.tracking.models.AppUser;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.bson.json.JsonObject;
+import org.json.JSONObject;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -35,8 +40,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String username = request.getParameter("username").trim();
-        String password = request.getParameter("password").trim();
+        String body = IOUtils.toString(request.getReader());
+        JSONObject jsonObject = new JSONObject(body);
+        System.out.println("username :: "+jsonObject.get("username"));
+
+        String username = jsonObject.get("username").toString().trim();
+        String password = jsonObject.get("password").toString().trim();
+        /*String username = request.getParameter("username").trim();
+        String password = request.getParameter("password").trim();*/
         log.info("username is : {}", username);
         log.info("password is : {}", password);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
